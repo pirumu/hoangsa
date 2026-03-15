@@ -819,8 +819,18 @@ Codebase:
   Infra:     Docker, docker-compose
   Linters:   eslint, prettier, ruff
 
+  Worker Rules addons detected: [react, typescript, python]
+    (auto-loaded at runtime by cook/fix workflows)
+
 OK? [Confirm / Sửa]
 ```
+
+**Addon detection logic:** Before showing the summary, match detected stacks and frameworks against addon frontmatter `frameworks` fields. For each addon in `templates/workflows/worker-rules/addons/`, an addon applies if any value in its `frameworks` list matches:
+- `config.json` `preferences.tech_stack` entries (e.g., `"typescript"`, `"python"`)
+- Any `frameworks` key from detected framework detection (A3) — e.g., `"react"`, `"nestjs"`, `"django"`
+- Any package-level framework from `codebase.packages[].frameworks`
+
+List only matching addon names in the summary line. If none match, omit the line.
 
 Use AskUserQuestion:
   question: "Config có OK không?"
@@ -912,6 +922,43 @@ Full config structure:
 
 ---
 
+## Step 5b: Generate project-level worker rules
+
+After saving config, generate `.hoangsa/worker-rules.md` using the Write tool.
+
+The file is a short project-specific header that references which worker-rules addons will be auto-loaded at runtime (by cook/fix workflows) based on the detected stack. Do NOT copy addon content here — addons are loaded at runtime.
+
+Template:
+
+```markdown
+# Worker Rules — <project name or repo dir>
+
+Project-level worker rules. Extends the HOANGSA base worker-rules with addons matched to this project's stack.
+
+## Detected addons
+
+The following addons will be auto-loaded at runtime based on this project's tech stack:
+
+- **react** — matches: react, react-native, expo
+- **typescript** — matches: typescript
+- **python** — matches: python, django, fastapi, flask
+
+_(addon matching: `frameworks` field in each addon's frontmatter vs `tech_stack` + detected frameworks in config.json)_
+
+## Project overrides
+
+Add any project-specific rule overrides below. These take priority over base worker-rules and addons.
+
+<!-- Example:
+- Prefer `yarn` over `npm` for all package installs
+- Use `src/__tests__/` for test file placement (not colocated)
+-->
+```
+
+Replace the addon list with only the addons actually detected for this project. If no addons match, write "No framework-specific addons detected — base worker-rules apply."
+
+---
+
 ## Step 6: Chain preferences (optional — quick setup)
 
 For chain preferences (`auto_taste`, `auto_plate`, `auto_serve`), present them as a batch instead of asking one at a time later:
@@ -964,11 +1011,12 @@ Project mới — skip indexing. Chạy /hoangsa:index sau khi có code.
 ```
 ✅ HOANGSA initialized!
 
-   Config:    .hoangsa/config.json
-   Profile:   balanced
-   Stacks:    [TypeScript, Python]
-   Packages:  3
-   GitNexus:  ✅ indexed (148 symbols)
+   Config:       .hoangsa/config.json
+   Profile:      balanced
+   Stacks:       [TypeScript, Python]
+   Packages:     3
+   Worker rules: .hoangsa/worker-rules.md (addons: react, typescript, python)
+   GitNexus:     ✅ indexed (148 symbols)
 
    Get started:
      /hoangsa:menu     — design a new feature
