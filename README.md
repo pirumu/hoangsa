@@ -332,8 +332,8 @@ Angular, Express.js, Flutter, Go, Java, JavaScript, NestJS, Next.js, Python, Rea
 ### How to Contribute
 
 1. Fork the repository at https://github.com/pirumu/hoangsa
-2. Run `npm run build` to compile the Rust CLI (`cargo build --release` inside `cli/`)
-3. Run `npm test` to verify the installation
+2. Run `pnpm run build` to compile the Rust CLI (`cargo build --release` inside `cli/`)
+3. Run `pnpm test` to verify the installation
 4. Slash command definitions live in `templates/commands/hoangsa/` — each is a Markdown file with YAML frontmatter
 5. Workflow logic lives in `templates/workflows/` — plain Markdown instructions for the AI
 6. Worker rule addons live in `templates/workflows/worker-rules/addons/`

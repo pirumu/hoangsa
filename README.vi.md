@@ -334,8 +334,8 @@ Angular, Express.js, Flutter, Go, Java, JavaScript, NestJS, Next.js, Python, Rea
 ### Cach dong gop
 
 1. Fork repository tai https://github.com/pirumu/hoangsa
-2. Chay `npm run build` de bien dich Rust CLI (`cargo build --release` ben trong `cli/`)
-3. Chay `npm test` de xac minh cai dat
+2. Chay `pnpm run build` de bien dich Rust CLI (`cargo build --release` ben trong `cli/`)
+3. Chay `pnpm test` de xac minh cai dat
 4. Dinh nghia slash command nam trong `templates/commands/hoangsa/` — moi file la Markdown voi YAML frontmatter
 5. Logic workflow nam trong `templates/workflows/` — huong dan Markdown thuan cho AI
 6. Worker rule addons nam trong `templates/workflows/worker-rules/addons/`
