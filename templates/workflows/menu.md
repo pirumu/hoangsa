@@ -41,6 +41,8 @@ If `GITNEXUS_AVAILABLE` or after sync completes, resolve the repo name:
 
 ```bash
 GITNEXUS_REPO=$(cat .gitnexus/meta.json 2>/dev/null | python3 -c 'import sys,json,os; m=json.load(sys.stdin); print(os.path.basename(m.get("repoPath","")))' 2>/dev/null || basename "$(pwd)")
+# Validate: only alphanumeric, hyphens, underscores allowed
+[[ "$GITNEXUS_REPO" =~ ^[a-zA-Z0-9_-]+$ ]] || GITNEXUS_REPO=$(basename "$(pwd)")
 ```
 
 Store as `GITNEXUS_REPO`. Pass both `GITNEXUS_STATUS` and `GITNEXUS_REPO` to all agent prompts.
@@ -219,7 +221,7 @@ Before gathering requirements, scan the user's input for task manager URLs (Line
    - **Task type** → infer from labels/tags (bug→fix, feature→feat, etc.) — still confirm with user in 3a
    - **Description** → use task title + body as initial description in 3c
    - **Acceptance criteria** → carry over to DESIGN-SPEC later
-5. Show the user what was fetched:
+6. Show the user what was fetched:
 
 ```
 📋 Task linked: <provider> <task_id>
@@ -232,7 +234,7 @@ Before gathering requirements, scan the user's input for task manager URLs (Line
    Dùng thông tin này làm context cho design.
 ```
 
-6. Continue to Step 3 with pre-filled context — the user can still override everything.
+7. Continue to Step 3 with pre-filled context — the user can still override everything.
 
 **If no task URL detected:** Skip this step, proceed to Step 3 normally.
 
@@ -266,7 +268,7 @@ fi
 **If videos detected (from either source):**
 1. Invoke the `visual-debug` skill for video processing:
    - Check ffmpeg availability: `hoangsa-cli media check-ffmpeg`
-   - If available: `hoangsa-cli media analyze <video_path> --output-dir /tmp/hoangsa-menu-<timestamp>`
+   - **Always quote the path** and validate it contains no shell metacharacters: `hoangsa-cli media analyze "$VIDEO_PATH" --output-dir "/tmp/hoangsa-menu-$(date +%s)"`
    - Read the output `montage.png` (annotated frame grid with timestamps)
    - Read the output `diff-montage.png` (red overlay showing changes between frames)
 2. Include visual analysis findings as design context for Step 3–5

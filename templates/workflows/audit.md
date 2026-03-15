@@ -41,6 +41,8 @@ If `GITNEXUS_AVAILABLE` or after sync completes, resolve the repo name:
 
 ```bash
 GITNEXUS_REPO=$(cat .gitnexus/meta.json 2>/dev/null | python3 -c 'import sys,json,os; m=json.load(sys.stdin); print(os.path.basename(m.get("repoPath","")))' 2>/dev/null || basename "$(pwd)")
+# Validate: only alphanumeric, hyphens, underscores allowed
+[[ "$GITNEXUS_REPO" =~ ^[a-zA-Z0-9_-]+$ ]] || GITNEXUS_REPO=$(basename "$(pwd)")
 ```
 
 Store as `GITNEXUS_REPO`. Pass both `GITNEXUS_STATUS` and `GITNEXUS_REPO` to all audit agent prompts.
@@ -135,7 +137,23 @@ Store as `AUDIT_DEPTH`.
 
 ---
 
-## Step 2e: Media detection (auto)
+## Step 2e: Task link detection
+
+Apply the shared task-link detection from `task-link.md`:
+
+1. Scan user input for task manager URLs (Linear, Jira, ClickUp, GitHub, Asana)
+2. If found → fetch task details via MCP → save to `EXTERNAL-TASK.md`
+3. Fetch and process attachments (see `task-link.md` Step 3b) — download to `$SESSION_DIR/attachments/`, classify by type. **Do NOT process videos here** — deferred to Step 2f.
+4. Extract from fetched task:
+   - **Labels/tags** → scope audit to affected areas
+   - **Description** → identify what area to audit
+   - **Related tasks/PRs** → context for recent changes
+
+If no task URL → skip, proceed normally.
+
+---
+
+## Step 2f: Media detection (auto)
 
 Scan **two sources** for media files:
 
@@ -162,7 +180,7 @@ fi
 **If videos detected (from either source):**
 1. Invoke the `visual-debug` skill for video processing:
    - Check ffmpeg availability: `hoangsa-cli media check-ffmpeg`
-   - If available: `hoangsa-cli media analyze <video_path> --output-dir /tmp/hoangsa-audit-<timestamp>`
+   - **Always quote the path** and validate it contains no shell metacharacters: `hoangsa-cli media analyze "$VIDEO_PATH" --output-dir "/tmp/hoangsa-audit-$(date +%s)"`
    - Read the output `montage.png` (annotated frame grid with timestamps)
    - Read the output `diff-montage.png` (red overlay showing changes between frames)
 2. Include visual analysis findings as context for dimension scanning agents

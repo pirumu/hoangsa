@@ -83,6 +83,8 @@ If `GITNEXUS_AVAILABLE` or after sync completes, resolve the repo name:
 
 ```bash
 GITNEXUS_REPO=$(cat .gitnexus/meta.json 2>/dev/null | python3 -c 'import sys,json,os; m=json.load(sys.stdin); print(os.path.basename(m.get("repoPath","")))' 2>/dev/null || basename "$(pwd)")
+# Validate: only alphanumeric, hyphens, underscores allowed
+[[ "$GITNEXUS_REPO" =~ ^[a-zA-Z0-9_-]+$ ]] || GITNEXUS_REPO=$(basename "$(pwd)")
 ```
 
 Store as `GITNEXUS_REPO`. Pass both `GITNEXUS_STATUS` and `GITNEXUS_REPO` to all agent prompts.

@@ -41,6 +41,8 @@ If `GITNEXUS_AVAILABLE` or after sync completes, resolve the repo name:
 
 ```bash
 GITNEXUS_REPO=$(cat .gitnexus/meta.json 2>/dev/null | python3 -c 'import sys,json,os; m=json.load(sys.stdin); print(os.path.basename(m.get("repoPath","")))' 2>/dev/null || basename "$(pwd)")
+# Validate: only alphanumeric, hyphens, underscores allowed
+[[ "$GITNEXUS_REPO" =~ ^[a-zA-Z0-9_-]+$ ]] || GITNEXUS_REPO=$(basename "$(pwd)")
 ```
 
 Store as `GITNEXUS_REPO`. Pass both `GITNEXUS_STATUS` and `GITNEXUS_REPO` to all worker prompts.
@@ -128,7 +130,7 @@ fi
 **If videos detected (from either source):**
 1. Invoke the `visual-debug` skill for video processing:
    - Check ffmpeg availability: `hoangsa-cli media check-ffmpeg`
-   - If available: `hoangsa-cli media analyze <video_path> --output-dir /tmp/hoangsa-debug-<timestamp>`
+   - **Always quote the path** and validate it contains no shell metacharacters: `hoangsa-cli media analyze "$VIDEO_PATH" --output-dir "/tmp/hoangsa-debug-$(date +%s)"`
    - Read the output `montage.png` (annotated frame grid with timestamps)
    - Read the output `diff-montage.png` (red overlay showing changes between frames)
 2. Include visual analysis findings in the bug context for Step 2

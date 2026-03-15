@@ -53,8 +53,15 @@ After fetching task details, check if the task has attachments (from the `### At
    ```
 
 2. Download each attachment:
-   - Use `WebFetch` or `curl` to download the file from its URL
-   - Save to `$SESSION_DIR/attachments/<original_filename>`
+   - **Validate URL:** Only download if scheme is `https://`. Never fetch `file://`, `http://localhost`, or RFC-1918 addresses (10.x, 172.16-31.x, 192.168.x, 169.254.x).
+   - **Sanitize filename:** Strip path separators and traversal components before saving:
+     ```bash
+     SAFE_NAME=$(basename "<original_filename>" | tr -dc 'a-zA-Z0-9._-')
+     # Reject if empty or starts with dot
+     [ -z "$SAFE_NAME" ] || [[ "$SAFE_NAME" == .* ]] && SAFE_NAME="attachment_$(date +%s)"
+     ```
+   - Use `WebFetch` or `curl` to download the file from its validated URL
+   - Save to `$SESSION_DIR/attachments/$SAFE_NAME`
    - Skip files larger than 50MB — note them in EXTERNAL-TASK.md but don't download
    - If download fails → warn and continue with remaining attachments
 
@@ -118,7 +125,7 @@ After fetching task details, check if the task has attachments (from the `### At
 
 **If MCP doesn't support attachments for this provider:** Skip silently — the task details without attachments are still valuable.
 
-5. Store task reference in session state:
+6. Store task reference in session state:
 
 ```json
 {
@@ -135,7 +142,7 @@ After fetching task details, check if the task has attachments (from the `### At
 }
 ```
 
-6. Save full context to `$SESSION_DIR/EXTERNAL-TASK.md`
+7. Save full context to `$SESSION_DIR/EXTERNAL-TASK.md`
 
 ### Show confirmation
 
