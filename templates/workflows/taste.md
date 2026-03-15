@@ -57,6 +57,57 @@ Running acceptance tests...
 
 ---
 
+## Step 2b: Test Quality Gate
+
+For each task that passed acceptance, evaluate the quality of its tests. This is a prompt-based review — read the test file(s) and production file(s) side-by-side and judge quality. Do not run any code analysis tools.
+
+**Read the files:**
+- Identify the test file(s) created or modified by the task (look for `*.test.*`, `*.spec.*`, `__tests__/`, etc.)
+- Read the corresponding production file(s) the tests are supposed to cover
+
+**Check for fake test patterns:**
+- **Copy-paste logic**: Does the test reproduce >3 lines of production logic verbatim instead of asserting outcomes?
+- **Inline stubs**: Does the test create manual stub objects when the test framework provides proper mocking utilities?
+- **Hardcoded assertions**: Do assertions only verify hardcoded literals without actually exercising the production code path?
+- **Mocking the subject**: Does the test mock the very function it is supposed to test (testing the mock, not the code)?
+
+**Check for edge case coverage:**
+- **Async code**: Is there cleanup on unmount? Is error handling tested? Is timeout handling covered?
+- **State management**: Are race conditions considered? Are stale closures possible? Are memory leaks guarded?
+- **Promises**: Is rejection handling tested? Is settlement guarantee verified?
+- **Event listeners**: Is listener removal on cleanup tested? Is multiple-attach prevention checked?
+
+**Report per task:**
+
+```
+Test Quality Gate results:
+
+  [T-01] <name>
+    Test file:       <path>
+    Production file: <path>
+    Result: ✅ PASS — test quality OK
+
+  [T-02] <name>
+    Test file:       <path>
+    Production file: <path>
+    Result: ⚠️  WARN — <issue description> (non-blocking, reported to user)
+
+  [T-03] <name>
+    Test file:       <path>
+    Production file: <path>
+    Result: ❌ FAIL — fake test detected: <reason>
+             copy-paste or coverage issue blocks commit — fix required
+```
+
+**Outcome rules:**
+- `PASS` — no action needed, proceed
+- `WARN` — report the issue to the user, do not block commit; user decides whether to address it
+- `FAIL` — fake test detected; this task is re-marked as `failed` in plan.json and must be fixed before commit
+
+If any task produces a `FAIL` result, update its status to `"failed"` in plan.json and include it in the Step 3 failure report.
+
+---
+
 ## Step 3: Report failures
 
 For each failed task, present a clear failure report:
