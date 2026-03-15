@@ -88,6 +88,16 @@ Initialize state for this session:
 # → creates state.json in SESSION_DIR with status: "pending"
 ```
 
+### 1c. Git context check
+
+Apply the shared git-context module from `git-context.md`:
+
+1. Run Part A (detect branching context) — detect base branch, current branch, dirty state, naming conventions
+2. Run Part B (git state check) — handle dirty state, create/checkout branch for new task
+3. Run Part D (stash recovery) — notify if stashed work exists for this task
+
+The expected branch is derived from `SESSION_ID` (e.g., `feat/api-authentication`). If the user has uncommitted changes from another task, handle before switching.
+
 ---
 
 ## Step 2: Load saved preferences + auto-detect

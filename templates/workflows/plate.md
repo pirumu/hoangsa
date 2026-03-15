@@ -62,7 +62,18 @@ Run `git commit -m "<confirmed message>"`.
 
 ---
 
-## Step 6: Chain to serve
+## Step 6: Git post-commit actions
+
+Apply Part C of the shared git-context module from `git-context.md`:
+
+1. Run Part C1 (push + PR check) — detect if on feature/fix branch, check unpushed commits
+2. Run Part C2 (offer next action) — ask user: keep working, push, push + PR, or switch task
+
+This step runs BEFORE the serve chain below. If user chooses "Push + Create PR", generate PR from session context. If user chooses "Switch to another task", push current branch first then handle branch switch.
+
+---
+
+## Step 7: Chain to serve
 
 **If external task is linked** (`state.external_task` exists in session state):
 

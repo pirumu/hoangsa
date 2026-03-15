@@ -158,9 +158,9 @@ After fetching task details, check if the task has attachments (from the `### At
 For workflows that modify code, sync-back is triggered at the **end of the chain** (after plate/commit). The chain is:
 
 ```
-fix → taste → plate → serve (sync-back)
-cook → taste → plate → serve (sync-back)
-menu → prepare → cook → taste → plate → serve (sync-back)
+fix → taste → plate → git-context (push/PR) → serve (sync-back)
+cook → taste → plate → git-context (push/PR) → serve (sync-back)
+menu → prepare → cook → taste → plate → git-context (push/PR) → serve (sync-back)
 ```
 
 ### What gets synced

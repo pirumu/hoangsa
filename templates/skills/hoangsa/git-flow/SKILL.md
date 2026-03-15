@@ -216,6 +216,19 @@ Read/write via:
 | **Save preferences** | Ask once, save to config, don't repeat |
 | **User's language** | Respect `lang` pref for all user-facing text |
 
+## Workflow Integration
+
+This skill is integrated into HOANGSA workflows via the shared `git-context.md` module:
+
+| Workflow | Integration Point | Behavior |
+|----------|-------------------|----------|
+| `/menu` | Step 1c (after session init) | Create branch for new feature |
+| `/fix` | Step 3 (after session init) | Create branch for bugfix |
+| `/cook` | Step 1c (before execution) | Verify correct branch |
+| `/plate` | Step 6 (after commit) | Push + PR + switch options |
+
+The skill provides the knowledge; `git-context.md` provides the executable steps that workflows reference.
+
 ## Additional Resources
 
 ### Reference Files

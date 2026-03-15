@@ -253,6 +253,16 @@ SESSION=$("$HOANGSA_ROOT/bin/hoangsa-cli" session init fix "$SLUG")
 # → { "id": "fix/null-pointer-user-service", ... }
 ```
 
+### Git context check
+
+Apply the shared git-context module from `git-context.md`:
+
+1. Run Part A (detect branching context) — detect base branch, current branch, dirty state
+2. Run Part B (git state check) — handle dirty state, create/checkout branch for bugfix
+3. Run Part D (stash recovery) — notify if stashed work exists for this task
+
+The expected branch is derived from `SESSION_ID` (e.g., `fix/null-pointer-user-service`). For gitflow repos, fix branches are created from `main`/`master` (not `develop`).
+
 Write a minimal `plan.json` to `$SESSION_DIR/plan.json` with:
 - `task_type: "fix"`
 - `status: "cooking"`

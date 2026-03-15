@@ -82,7 +82,17 @@ echo $DAG
 
 If errors → show specific errors, suggest re-running `/hoangsa:prepare`.
 
-### 1c. Load specs for verification
+### 1c. Git context check
+
+Apply the shared git-context module from `git-context.md`:
+
+1. Run Part A (detect branching context) — detect base branch, current branch, dirty state
+2. Run Part B (git state check) — verify on correct branch for this session, switch if needed
+3. Run Part D (stash recovery) — notify if stashed work exists for this task
+
+The expected branch is derived from the session ID in `state.json`. If user is on wrong branch, prompt to switch before executing tasks.
+
+### 1d. Load specs for verification
 
 Read `$SESSION_DIR/DESIGN-SPEC.md` — used in Step 5 for semantic verification.
 Note: `language` field in frontmatter → used to build correct verification commands.
