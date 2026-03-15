@@ -91,9 +91,6 @@ npx hoangsa-cc --local
 
 # Gỡ HOANGSA
 npx hoangsa-cc --uninstall
-
-# Cài vào thư mục config tùy chỉnh
-npx hoangsa-cc --config-dir <path>
 ```
 
 | Flag | Viết tắt | Mô tả |
@@ -101,7 +98,6 @@ npx hoangsa-cc --config-dir <path>
 | `--global` | `-g` | Cài vào `~/.claude/` (tất cả projects) |
 | `--local` | `-l` | Cài vào `.claude/` (chỉ project này) |
 | `--uninstall` | `-u` | Gỡ HOANGSA |
-| `--config-dir` | | Sử dụng đường dẫn thư mục config tùy chỉnh |
 
 Installer cũng cài đặt:
 - Lifecycle hooks (statusline, context monitor, update checker, GitNexus tracker)
