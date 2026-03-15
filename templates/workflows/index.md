@@ -55,7 +55,7 @@ Wait for completion. If this fails, report the error and stop.
 Record start time, then run:
 ```bash
 START_TIME=$(date +%s)
-OUTPUT=$(gitnexus analyze 2>&1)
+OUTPUT=$(gitnexus analyze --embeddings 2>&1)
 EXIT_CODE=$?
 END_TIME=$(date +%s)
 ELAPSED=$((END_TIME - START_TIME))
