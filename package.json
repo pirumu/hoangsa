@@ -1,0 +1,54 @@
+{
+  "name": "hoangsa-cc",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "A lean 3-phase (menu → prepare → cook) context engineering system for Claude Code by Zan.",
+  "bin": {
+    "hoangsa-cc": "bin/install"
+  },
+  "files": [
+    "bin",
+    "templates",
+    "README.md",
+    "README.vi.md"
+  ],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "ai",
+    "meta-prompting",
+    "context-engineering",
+    "spec-driven-development"
+  ],
+  "author": "Zan",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pirumu/hoangsa.git"
+  },
+  "homepage": "https://github.com/pirumu/hoangsa",
+  "bugs": {
+    "url": "https://github.com/pirumu/hoangsa/issues"
+  },
+  "scripts": {
+    "build": "cd cli && cargo build --release",
+    "test": "cd cli && cargo build --release && ./target/release/hoangsa-cli verify $(cd .. && pwd)",
+    "verify": "cd cli && ./target/release/hoangsa-cli verify $(cd .. && pwd)",
+    "format": "prettier --write 'bin/**' '*.json'",
+    "format:check": "prettier --check 'bin/**' '*.json'"
+  },
+  "optionalDependencies": {
+    "@hoangsa-cc/cli-linux-x64": "0.0.1",
+    "@hoangsa-cc/cli-linux-arm64": "0.0.1",
+    "@hoangsa-cc/cli-linux-x64-musl": "0.0.1",
+    "@hoangsa-cc/cli-darwin-x64": "0.0.1",
+    "@hoangsa-cc/cli-darwin-arm64": "0.0.1",
+    "@hoangsa-cc/cli-windows-x64": "0.0.1"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  }
+}

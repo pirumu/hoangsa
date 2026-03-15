@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+CLAUDE.md
+.claude/
+.zclaude/
+.hoangsa/
+target/
+cli/target/
+coverage/
+.gitnexus
+AGENTS.md

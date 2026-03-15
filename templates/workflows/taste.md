@@ -1,0 +1,158 @@
+# HOANGSA Taste Workflow
+
+You are the test runner. Mission: run acceptance tests for all tasks in the plan, report results.
+
+---
+
+## Step 0: Language enforcement
+
+```bash
+LANG_PREF=$("~/.claude/hoangsa/bin/hoangsa-cli" pref get . lang)
+```
+
+All user-facing text — status updates, questions, reports, error messages, progress displays — **MUST** use the language from `lang` preference (`vi` → Vietnamese, `en` → English, `null` → default English). This applies throughout the **ENTIRE** workflow. Do not switch languages mid-conversation. Template examples in this workflow are illustrative — adapt them to match the user's `lang` preference.
+
+---
+
+## Step 1: Load session and plan
+
+```bash
+SESSION=$("~/.claude/hoangsa/bin/hoangsa-cli" session latest)
+```
+
+If `found: false` → ask user to run `/hoangsa:prepare` first, stop.
+
+Read `$SESSION_DIR/plan.json` — extract tasks and their `acceptance` commands.
+
+---
+
+## Step 1b: Model selection
+
+```bash
+MODEL=$("~/.claude/hoangsa/bin/hoangsa-cli" resolve-model tester)
+```
+
+Use the resolved model for running test tasks. The `tester` role is lightweight (default: haiku in balanced profile) since it primarily runs commands and reports results.
+
+---
+
+## Step 2: Run acceptance tests per task
+
+For each task in plan.json:
+
+1. Run the task's `acceptance` command
+2. Record pass or fail
+
+```
+Running acceptance tests...
+
+  [T-01] <name>
+    $ <acceptance command>
+    ✅ passed
+
+  [T-02] <name>
+    $ <acceptance command>
+    ❌ failed — <error summary>
+```
+
+---
+
+## Step 3: Report failures
+
+For each failed task, present a clear failure report:
+
+```
+❌ Task failed: <T-xx> — <name>
+
+Acceptance command:
+  $ <acceptance command>
+
+Actual output:
+  <stdout/stderr>
+```
+
+After all tasks are tested, if there are failures, present options:
+
+```
+<N> task(s) failed. What would you like to do?
+  [1] /hoangsa:fix  — hotfix the failing task(s)
+  [2] Fix manually  — mark as passed after you fix it
+  [3] Skip          — mark as failed, move on
+```
+
+The taste workflow does NOT attempt to fix failures itself — that is the fix workflow's job. Taste is a reporter: test, record, report. This keeps the workflow focused and avoids wasting context on fix attempts that belong in a fresh-context fix session.
+
+---
+
+## Step 4: Update task statuses
+
+For each task, update status in plan.json:
+
+- Passed → `"status": "passed"`
+- Failed (after all attempts) → `"status": "failed"`
+
+```bash
+"~/.claude/hoangsa/bin/hoangsa-cli" state update "$SESSION_DIR/plan.json" <task_id> <status>
+```
+
+---
+
+## Step 5: Report results
+
+```
+🍽️  Taste results: <plan name>
+
+  [T-01] Define UserSchema         ✅ passed
+  [T-02] Define ErrorTypes         ✅ passed
+  [T-03] Implement create_user     ❌ failed (3 attempts)
+
+  Summary: 2/3 passed
+
+Next steps:
+  - /hoangsa:plate  — commit passing work
+  - /hoangsa:fix    — hotfix the failing task
+  - /hoangsa:check  — view full session status
+```
+
+---
+
+## Step 6: Chain to plate
+
+Read chain preference from project config:
+
+```bash
+AUTO_PLATE=$("~/.claude/hoangsa/bin/hoangsa-cli" pref get . auto_plate)
+```
+
+- If `auto_plate` value is `true` → automatically invoke `/hoangsa:plate`
+- If `auto_plate` value is `false` → skip, just show next steps
+- If `auto_plate` value is `null` (first time) → ask the user once, then **save their answer**:
+
+  Use AskUserQuestion:
+    question: "Muốn tự động commit sau khi taste pass?"
+    header: "Auto plate"
+    options:
+      - label: "Luôn luôn", description: "Tự động commit khi tất cả tests pass"
+      - label: "Không", description: "Tôi sẽ commit thủ công bằng /hoangsa:plate"
+    multiSelect: false
+
+  Save immediately:
+
+  ```bash
+  "~/.claude/hoangsa/bin/hoangsa-cli" pref set . auto_plate true
+  # or: pref set . auto_plate false
+  ```
+
+  Then proceed based on their choice.
+
+---
+
+## Rules
+
+| Rule | Detail |
+|------|--------|
+| **Test only, don't fix** | Report failures clearly, delegate fixing to /hoangsa:fix |
+| **Don't skip without asking** | Always confirm with user before marking failed |
+| **Update plan.json statuses** | After every test run |
+| **Report clearly** | Pass/fail per task with full command output shown |
+| **Save preferences on first ask** | Ask once, save to config, never repeat |
