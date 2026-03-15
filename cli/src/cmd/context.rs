@@ -53,7 +53,10 @@ pub fn cmd_pack(session_dir: Option<&str>, task_id: Option<&str>) {
         .unwrap_or("");
     let workspace_canonical = match std::fs::canonicalize(workspace_dir) {
         Ok(p) => p,
-        Err(_) => std::path::PathBuf::from(workspace_dir),
+        Err(_) => {
+            out(&json!({ "error": format!("workspace_dir does not exist: {}", workspace_dir) }));
+            return;
+        }
     };
 
     let mut file_segments: Vec<Value> = Vec::new();
@@ -64,12 +67,26 @@ pub fn cmd_pack(session_dir: Option<&str>, task_id: Option<&str>) {
                 let resolved = if Path::new(file_path).is_absolute() {
                     match std::fs::canonicalize(file_path) {
                         Ok(p) => p,
-                        Err(_) => std::path::PathBuf::from(file_path),
+                        Err(_) => {
+                            // File doesn't exist yet (CREATE action) — normalize manually
+                            let mut normalized = std::path::PathBuf::new();
+                            for component in Path::new(file_path).components() {
+                                normalized.push(component);
+                            }
+                            normalized
+                        }
                     }
                 } else {
                     match std::fs::canonicalize(workspace_canonical.join(file_path)) {
                         Ok(p) => p,
-                        Err(_) => workspace_canonical.join(file_path),
+                        Err(_) => {
+                            // File doesn't exist yet — normalize to strip .. components
+                            let mut normalized = std::path::PathBuf::new();
+                            for component in workspace_canonical.join(file_path).components() {
+                                normalized.push(component);
+                            }
+                            normalized
+                        }
                     }
                 };
                 if !resolved.starts_with(&workspace_canonical) {

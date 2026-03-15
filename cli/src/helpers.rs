@@ -74,11 +74,19 @@ pub fn parse_frontmatter(content: &str) -> Option<BTreeMap<String, String>> {
 }
 
 /// Resolve the working directory from --cwd flag or current directory.
+/// Rejects non-absolute paths and paths outside $HOME to prevent arbitrary writes.
 pub fn resolve_cwd(args: &[String]) -> String {
     for i in 0..args.len() {
         if args[i] == "--cwd" {
             if let Some(dir) = args.get(i + 1) {
-                return dir.clone();
+                let p = Path::new(dir);
+                if !p.is_absolute() {
+                    eprintln!("Warning: --cwd must be an absolute path, ignoring: {}", dir);
+                } else if let Ok(canonical) = std::fs::canonicalize(p) {
+                    return canonical.to_string_lossy().to_string();
+                } else {
+                    eprintln!("Warning: --cwd path does not exist, ignoring: {}", dir);
+                }
             }
         }
     }
