@@ -78,6 +78,15 @@ fn main() {
             let project_dir = if sub.is_empty() { &cwd } else { sub };
             cmd::verify::cmd_verify(project_dir);
         }
+        ("media", "probe") => cmd::media::cmd_probe(rest.first().unwrap_or(&"")),
+        ("media", "frames") => {
+            let owned: Vec<String> = rest.iter().map(|s| s.to_string()).collect();
+            cmd::media::cmd_frames(&owned);
+        }
+        ("media", "montage") => cmd::media::cmd_montage(&rest),
+        ("media", "diff") => cmd::media::cmd_diff(&rest),
+        ("media", "check-ffmpeg") => cmd::media::cmd_check_ffmpeg(),
+        ("media", "install-ffmpeg") => cmd::media::cmd_install_ffmpeg(),
         ("commit", _) => {
             // commit "<message>" --files f1 f2 ...
             let message = sub;
@@ -122,6 +131,12 @@ Usage:
   hoangsa-cli hook check-update
   hoangsa-cli hook context-monitor
   hoangsa-cli verify [projectDir]
+  hoangsa-cli media probe <file>
+  hoangsa-cli media frames <video> [--interval <s>] [--max-frames <n>] [--output-dir <dir>]
+  hoangsa-cli media montage <frames_dir> [--cols <n>] [--timestamps] [--output <path>]
+  hoangsa-cli media diff <frames_dir> [--cols <n>] [--output <path>]
+  hoangsa-cli media check-ffmpeg
+  hoangsa-cli media install-ffmpeg
 "
             );
             std::process::exit(1);

@@ -611,6 +611,19 @@ function copyAllFiles(src, targetDir, pathPrefix, attribution) {
     failures.push("hoangsa/workflows");
   }
 
+  // Copy skills with path replacement
+  const skillsSrc = path.join(src, "skills");
+  if (fs.existsSync(skillsSrc)) {
+    const skillsDest = path.join(targetDir, "skills");
+    copyWithPathReplacement(skillsSrc, skillsDest, pathPrefix, attribution);
+    if (fs.existsSync(skillsDest) && fs.readdirSync(skillsDest).length > 0) {
+      console.log(`  ${green}✓${reset} Installed skills`);
+    } else {
+      console.error(`  ${yellow}✗${reset} Failed to install skills`);
+      failures.push("skills");
+    }
+  }
+
   // Copy compiled binary — prefer platform package, fall back to dev build
   const binDestDir = path.join(hoangsaDestDir, "bin");
   fs.mkdirSync(binDestDir, { recursive: true });

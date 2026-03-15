@@ -3,6 +3,7 @@ pub mod config;
 pub mod context;
 pub mod dag;
 pub mod hook;
+pub mod media;
 pub mod memory;
 pub mod model;
 pub mod pref;

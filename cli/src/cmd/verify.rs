@@ -1382,6 +1382,64 @@ fn test_gitnexus_statusline(t: &mut TestRunner) {
     }
 }
 
+fn test_media(t: &mut TestRunner) {
+    eprintln!("\n\x1b[1m● media\x1b[0m");
+
+    let dir = tmp_project();
+
+    // check-ffmpeg returns valid JSON with "available" field (works with or without ffmpeg)
+    {
+        let out = t.run_json(&["media", "check-ffmpeg"], &dir);
+        t.check(
+            "media check-ffmpeg has available field",
+            out["available"].is_boolean(),
+            &format!("got {out:?}"),
+        );
+    }
+
+    // media probe with a non-existent file returns an error JSON
+    {
+        let out = t.run_json(&["media", "probe", "/nonexistent/no_such_file.mp4"], &dir);
+        t.check(
+            "media probe non-existent file returns error",
+            out["error"].is_string(),
+            &format!("got {out:?}"),
+        );
+    }
+
+    // media frames with a non-existent file returns an error JSON
+    {
+        let out = t.run_json(&["media", "frames", "/nonexistent/no_such_file.mp4"], &dir);
+        t.check(
+            "media frames non-existent file returns error",
+            out["error"].is_string(),
+            &format!("got {out:?}"),
+        );
+    }
+
+    // media montage with a non-existent dir returns an error JSON
+    {
+        let out = t.run_json(&["media", "montage", "/nonexistent/no_such_frames_dir"], &dir);
+        t.check(
+            "media montage non-existent dir returns error",
+            out["error"].is_string(),
+            &format!("got {out:?}"),
+        );
+    }
+
+    // media diff with a non-existent dir returns an error JSON
+    {
+        let out = t.run_json(&["media", "diff", "/nonexistent/no_such_frames_dir"], &dir);
+        t.check(
+            "media diff non-existent dir returns error",
+            out["error"].is_string(),
+            &format!("got {out:?}"),
+        );
+    }
+
+    cleanup(&dir);
+}
+
 // ─── entry point ─────────────────────────────────────────────────────────────
 
 pub fn cmd_verify(project_dir: &str) {
@@ -1417,6 +1475,7 @@ pub fn cmd_verify(project_dir: &str) {
     test_full_state_lifecycle(&mut t);
     test_gitnexus_tracker(&mut t);
     test_gitnexus_statusline(&mut t);
+    test_media(&mut t);
 
     eprintln!("\n\x1b[1m─── results ───\x1b[0m");
     let total = t.passed + t.failed;

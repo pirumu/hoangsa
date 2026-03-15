@@ -85,6 +85,31 @@ If an external task was linked (Step 0c), merge its description and comments int
 
 ---
 
+## Step 1b: Media detection (auto)
+
+Scan the user's input for media file references (paths or URLs to screenshots/videos).
+
+**Detection patterns:**
+- File paths ending in: `.png`, `.jpg`, `.jpeg`, `.webp`, `.gif` (images)
+- File paths ending in: `.mp4`, `.mov`, `.webm`, `.avi`, `.mkv` (videos)
+- Screenshots pasted or attached by the user
+
+**If images detected:**
+- Claude reads images natively — no processing needed
+- Note the image paths for reference in bug analysis
+
+**If videos detected:**
+1. Invoke the `visual-debug` skill for video processing:
+   - Check ffmpeg availability: `hoangsa-cli media check-ffmpeg`
+   - If available: `hoangsa-cli media analyze <video_path> --output-dir /tmp/hoangsa-debug-<timestamp>`
+   - Read the output `montage.png` (annotated frame grid with timestamps)
+   - Read the output `diff-montage.png` (red overlay showing changes between frames)
+2. Include visual analysis findings in the bug context for Step 2
+
+**If no media detected:** Skip this step, proceed to Step 2.
+
+---
+
 ## Step 2: Analyze the bug
 
 ### 2a. Initial analysis
